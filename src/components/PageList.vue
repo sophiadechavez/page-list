@@ -4,23 +4,27 @@
         <div class="cmp-page-list__content">
             <div class="checkbox">
                 <div>
-                    <input type="checkbox" id="news" v-model="isChecked">
+                    <input type="checkbox" id="news" v-model="newsCheckbox" @click="newsDisplay">
                     <label for="news">News</label>
                 </div>
                 <div>
-                    <input type="checkbox" id="essays" v-model="isChecked">
+                    <input type="checkbox" id="essays" v-model="essayCheckbox" @click="essayDisplay">
                     <label for="essays">Essays</label>
                 </div>
             </div>
             <div class="entry">
-                <div :class="getCategoryClass(article.category)" v-for="(article, index) in sortedArticles" :key="index">
+                <div v-if="selectedCategory === '' || displayAll === true" :class="getCategoryClass(article.category)" v-for="(article, index) in sortedArticles" :key="index">
                     <a class="item" :href="article.url">
                         <p class="title">{{article.title}}</p>
                         <p>{{ formatDate(article.publishDate) }}</p>
                     </a>
                 </div>
-                <button>Previous</button>
-                <button>Next</button>
+                <div v-if="selectedCategory !== ''" :class="getCategoryClass(article.category)" v-for="(article, index) in filteredArticles" :key="index">
+                    <a class="item" :href="article.url">
+                        <p class="title">{{article.title}}</p>
+                        <p>{{ formatDate(article.publishDate) }}</p>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -30,6 +34,10 @@
     export default {
         data() {
             return {
+            newsCheckbox: false,
+            essayCheckbox: false,
+            selectedCategory: "",
+            displayAll: this.selectedCategory === 'news' && this.selectedCategory === 'essay',
             latestArticle: [
                     {
                         "title": "Find new ways to travel north",
@@ -77,6 +85,12 @@
             formatDate(dateString) {
                 const date = new Date(dateString);
                 return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+            },
+            newsDisplay() {
+                this.selectedCategory = "news";
+            },
+            essayDisplay() {
+                this.selectedCategory = "essay";
             }
         },
         computed: {
@@ -88,6 +102,12 @@
                 });
 
                 return articles;
+            },
+            filteredArticles() {
+                return this.latestArticle.filter(article => article.category === this.selectedCategory);
+            },
+            displayAll() {
+                return this.essayCheckbox && this.newsCheckbox;
             }
         }
     }
