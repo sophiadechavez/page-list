@@ -13,10 +13,14 @@
                 </div>
             </div>
             <div class="entry">
-                 <div v-for="(page, index) in latestArticle" :key="index">
-                    <h3 class="title">{{page.title}}</h3>
-                    <p>{{page.publishDate}}</p>
+                <div :class="getCategoryClass(article.category)" v-for="(article, index) in sortedArticles" :key="index">
+                    <a class="item" :href="article.url">
+                        <p class="title">{{article.title}}</p>
+                        <p>{{ formatDate(article.publishDate) }}</p>
+                    </a>
                 </div>
+                <button>Previous</button>
+                <button>Next</button>
             </div>
         </div>
     </div>
@@ -65,21 +69,54 @@
                     }
                 ]
             };
+        },
+        methods: {
+            getCategoryClass(category) {
+            return `category-${category}`;
+            },
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+            }
+        },
+        computed: {
+            sortedArticles() {
+                const articles = [...this.latestArticle];
+
+                articles.sort((a, b) => {
+                    return new Date(b.publishDate) - new Date(a.publishDate);
+                });
+
+                return articles;
+            }
         }
     }
 </script>
 
 <style>
 .cmp-page-list {
+    h2 {
+        text-align: center;
+    }
     .cmp-page-list__content {
+        width: 500px;
         border-style: solid;
         border-color: darkgray;
         padding: 10px;
     }
 
+    .title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 400px;
+    }
+
     .checkbox {
         display: flex;
         gap: 50px;
+        justify-content: center;
+        margin: 20px 20px;
 
         input {
             margin-right: 10px;
@@ -87,10 +124,29 @@
     }
 
     .entry {
-        div {
+        .category-news {
             padding: 10px;
             background-color: aliceblue;
             margin-bottom: 20px;
+            .item {
+                color: cornflowerblue;
+                display: flex;
+            }
+            .item:hover {
+                background-color: azure;
+            }
+        }
+        .category-essay {
+            padding: 10px;
+            background-color: blanchedalmond;
+            margin-bottom: 20px;
+            .item {
+                color: cornflowerblue;
+                display: flex;
+            }
+            .item:hover {
+                background-color: peachpuff;
+            }
         }
     }
 }
